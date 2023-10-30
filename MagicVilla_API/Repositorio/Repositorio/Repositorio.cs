@@ -7,13 +7,13 @@ namespace MagicVilla_API.Repositorio.Repositorio
 {
     public class Repositorio<T> : IRepositorio<T> where T : class
     {
-        private readonly ApplicationDbContext _context;
+        protected readonly ApplicationDbContext _context;
         internal DbSet<T> dbSet;
 
         public Repositorio(ApplicationDbContext context)
         {
-                _context = context;
-            dbSet=_context.Set<T>();
+            _context = context;
+            this.dbSet = _context.Set<T>();
         }
 
 
@@ -30,19 +30,34 @@ namespace MagicVilla_API.Repositorio.Repositorio
             await _context.SaveChangesAsync();
         }
 
-        public async Task<T> Obtener(Expression<Func<T, bool>>? filtro = null, bool tracked = true)
+        public async Task<T?> Obtener(Expression<Func<T, bool>>? filtro = null, bool tracked = true)
         {
-            IQueryable<T> query = dbset;
+            IQueryable<T> query = dbSet;
+            if(!tracked)
+            {
+                query = query.AsNoTracking();
+            }
+            if(filtro!= null)
+            {
+                query = query.Where(filtro);
+            }
+            return await query.FirstOrDefaultAsync();
         }
 
-        public Task<List<T>> ObtenerTodo(Expression<Func<T, bool>>? filtro = null)
+        public async Task<List<T>> ObtenerTodo(Expression<Func<T, bool>>? filtro = null)
         {
-            throw new NotImplementedException();
+            IQueryable<T> query= dbSet;
+            if(filtro!= null)
+            {
+                query = query.Where(filtro);
+            }
+            return await query.ToListAsync();
         }
 
-        public Task Remover(T entidad)
+        public async Task Remover(T entidad)
         {
-            throw new NotImplementedException();
+            dbSet.Remove(entidad);
+            await Grabar();
         }
     }
 }
