@@ -116,7 +116,7 @@ namespace MagicVilla_API.Controllers
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     _response.ErrorMessages = new List<string>() { "El nombre ya existe entre los datos cargados" };
-                    _response.IsExitoso = false;
+                    _response.IsExitoso = false; 
                     return BadRequest(_response);
                 }
 
